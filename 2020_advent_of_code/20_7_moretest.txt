@@ -1,0 +1,12 @@
+light salmon bags contain 5 dark brown bags, 2 dotted coral bags, 5 mirrored turquoise bags.
+drab magenta bags contain 1 vibrant purple bag, 5 dark lime bags, 2 clear silver bags.
+striped coral bags contain 2 dim lime bags.
+drab cyan bags contain 1 dark lime bag.
+bright purple bags contain 5 posh salmon bags, 1 posh blue bag, 1 shiny lavender bag.
+dull tomato bags contain 2 shiny maroon bags, 1 posh salmon bag, 4 posh teal bags, 5 dark orange bags.
+faded aqua bags contain 3 striped salmon bags, 5 dim purple bags, 3 shiny gold bags, 4 drab indigo bags.
+drab maroon bags contain 2 dark gray bags, 3 mirrored tan bags, 4 pale blue bags, 4 dim black bags.
+posh blue bags contain 1 mirrored maroon bag, 4 striped lavender bags.
+dull orange bags contain 2 light aqua bags, 2 striped chartreuse bags, 4 dim bronze bags.
+vibrant fuchsia bags contain 1 clear orange bag, 1 plaid turquoise bag, 3 posh maroon bags, 4 light silver bags.
+posh violet bags contain 5 plaid violet bags, 5 vibrant turquoise bags, 1 pale orange bag.
