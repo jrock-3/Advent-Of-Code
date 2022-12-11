@@ -1,13 +1,16 @@
-num = None
+year = 2022
+num = 0
 isB = False
 test = True
 
-infile = f'{num}/' + ('input.txt' if not test else 'sample.txt')
-outfile = f'{num}/{"a" if not isB else "b"}.out.txt'
+filename = f'{year}/{num}/{"data" if not test else "test"}'
+infile = f'{filename}.in'
+outfile = f'{filename}_{"a" if not isB else "b"}.out'
 
 
 def solver(file):
-    pass
+    file = iter(file)
+    return None
 
 
 def main():
