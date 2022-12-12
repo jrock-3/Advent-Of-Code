@@ -83,7 +83,7 @@ def solver(file):
             #                 print('.', end='')
             #         print()
             #     print()
-            return
+            return levels[curr]
         for dx, dy in dirs:
             to = (curr[0]+dx,curr[1]+dy)
             if to not in ds and is_legal(heights, curr, to):
