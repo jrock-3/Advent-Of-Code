@@ -12,19 +12,6 @@ infile = f'{filename}.in'
 bestfile = f'{filename}_{"a" if not isB else "b"}.best'
 
 
-# def simulate(blueprint, t, robots, resources):
-#     if t == 0:
-#         return resources[3]
-#     resources = [x+y for x,y in zip(resources, robots)]
-#     t -= 1
-#     best = simulate(blueprint, t, robots, resources)
-#     for cost in blueprint:
-#         test = [x-y for x, y in zip(resources, cost)]
-#         if min(test) >= 0:
-#             best = max(best, simulate(blueprint, t-1, robots, test))
-#     return best
-
-
 # start with one ore collecting robot
 def solver(file):
     total = 1
