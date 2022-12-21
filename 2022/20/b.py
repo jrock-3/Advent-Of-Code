@@ -46,7 +46,7 @@ def solver(file):
     def sign(n):
         return 1 if n>0 else -1
 
-    print([sign(x)*(abs(x)%(len(nums)-1)) for x in nums])
+    # print([sign(x)*(abs(x)%(len(nums)-1)) for x in nums])
     # print_ll(root, len(nums))
     
     for _ in range(10):
