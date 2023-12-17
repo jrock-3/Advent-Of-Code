@@ -5,7 +5,7 @@ use nom::{
     character::complete::{self, newline, one_of},
     multi::{many1, separated_list1},
     sequence::separated_pair,
-    IResult,
+    IResult, Parser,
 };
 
 fn main() {
@@ -115,13 +115,9 @@ impl Hand {
 fn get_hands(input: &str) -> IResult<&str, Vec<Hand>> {
     let (input, hands) = separated_list1(
         newline,
-        separated_pair(many1(one_of("AKQJT98765432")), tag(" "), complete::u32),
+        separated_pair(many1(one_of("AKQJT98765432")), tag(" "), complete::u32)
+            .map(|(chars, num)| Hand::new(chars, num)),
     )(input)?;
-
-    let hands = hands
-        .into_iter()
-        .map(|(chars, num)| Hand::new(chars, num))
-        .collect::<Vec<_>>();
 
     Ok((input, hands))
 }

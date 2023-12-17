@@ -69,16 +69,22 @@ impl Map {
 }
 
 fn get_maps(input: &str) -> IResult<&str, Map> {
-    let (input, (dirs, _)) = tuple((many1(one_of("RL").map(Dir::from)), multispace1))(input)?;
+    let (input, dirs) = terminated(many1(one_of("RL").map(Dir::from)), multispace1)(input)?;
 
     let (input, lines) = many1(terminated(
         tuple((
-            count(anychar, 3).map(|chars| chars.iter().collect::<String>()),
-            tag(" = ("),
-            count(anychar, 3).map(|chars| chars.iter().collect::<String>()),
-            tag(", "),
-            count(anychar, 3).map(|chars| chars.iter().collect::<String>()),
-            tag(")"),
+            terminated(
+                count(anychar, 3).map(|chars| chars.iter().collect::<String>()),
+                tag(" = ("),
+            ),
+            terminated(
+                count(anychar, 3).map(|chars| chars.iter().collect::<String>()),
+                tag(", "),
+            ),
+            terminated(
+                count(anychar, 3).map(|chars| chars.iter().collect::<String>()),
+                tag(")"),
+            ),
         )),
         opt(newline),
     ))(input)?;
@@ -86,7 +92,7 @@ fn get_maps(input: &str) -> IResult<&str, Map> {
     let maps = lines
         .clone()
         .into_iter()
-        .map(|(src, _, left, _, right, _)| (src, Node { left, right }))
+        .map(|(src, left, right)| (src, Node { left, right }))
         .collect::<BTreeMap<_, _>>();
 
     let starts = lines
