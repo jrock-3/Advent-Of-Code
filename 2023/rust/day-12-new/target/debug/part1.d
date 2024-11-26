@@ -1,0 +1,1 @@
+/Users/jrock/cs/advent-of-code/2023/rust/day-12-new/target/debug/part1: /Users/jrock/cs/advent-of-code/2023/rust/day-12-new/src/bin/part1.rs /Users/jrock/cs/advent-of-code/2023/rust/day-12-new/src/in/in1.txt
