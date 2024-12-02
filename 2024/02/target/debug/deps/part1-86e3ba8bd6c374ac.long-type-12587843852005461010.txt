@@ -1,0 +1,1 @@
+(fn(Endianness) -> fn(_) -> Result<(_, i32), nom::Err<_>> {nom::number::complete::i32::<_, _>}, fn(Endianness) -> Result<(Endianness, Endianness), nom::Err<_>> {nom::character::complete::multispace1::<Endianness, _>}, fn(Endianness) -> fn(_) -> Result<(_, i32), nom::Err<_>> {nom::number::complete::i32::<_, _>})
