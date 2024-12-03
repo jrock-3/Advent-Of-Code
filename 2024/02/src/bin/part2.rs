@@ -36,7 +36,7 @@ fn process(input: &str) -> String {
 
     let mut cnt = 0;
     for mut line in lines {
-        dbg!(&line);
+        // dbg!(&line);
         if is_line_valid(&line) {
             // dbg!(&line);
             cnt += 1;
@@ -45,7 +45,7 @@ fn process(input: &str) -> String {
 
         // try removing a level
         for i in 0..line.len() {
-            dbg!(&line);
+            // dbg!(&line);
             let lvl = line.remove(i);
             if is_line_valid(&line) {
                 cnt += 1;
@@ -71,6 +71,5 @@ mod tests {
 8 6 4 4 1
 1 3 6 7 9";
         assert_eq!("4", process(input));
-        assert!(false);
     }
 }
