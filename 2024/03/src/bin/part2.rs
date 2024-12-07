@@ -7,28 +7,21 @@ fn main() {
 
 fn process(input: &str) -> String {
     let mut res = 0;
-    let re = Regex::new(r"do(?:n't)?\(\)|mul\(\d+,\d+\)").unwrap();
+    let re = Regex::new(r"do(n't)?\(\)|mul\(\d+,\d+\)").unwrap();
     let mut enabled = true;
     for capture in re.find_iter(input) {
-        let mut raw = capture.as_str().split("(").into_iter();
-        match raw.next().unwrap() {
-            "do" => enabled = true,
-            "don't" => enabled = false,
-            "mul" => {
+        match capture.as_str() {
+            "do()" => enabled = true,
+            "don't()" => enabled = false,
+            mul => {
                 if !enabled {
                     continue;
                 }
-                let (a, b) = raw
-                    .next()
-                    .unwrap()
-                    .trim_matches(')')
-                    .split_once(",")
-                    .unwrap();
+                let (a, b) = mul[4..mul.len() - 1].split_once(",").unwrap();
                 let a = a.parse::<u32>().unwrap();
                 let b = b.parse::<u32>().unwrap();
                 res += a * b;
             }
-            _ => unreachable!(),
         }
     }
     res.to_string()
