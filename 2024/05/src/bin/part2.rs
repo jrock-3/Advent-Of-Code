@@ -1,12 +1,12 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use itertools::{all, Itertools};
+use itertools::Itertools;
 use nom::{
     bytes::complete::tag,
     character::complete::{self, line_ending},
     multi::{count, separated_list1},
     sequence::separated_pair,
-    IResult, Parser,
+    IResult,
 };
 
 fn main() {
@@ -63,12 +63,29 @@ fn is_valid(orderings: &BTreeMap<u32, BTreeSet<u32>>, update: &Vec<u32>) -> bool
 
 // TODO: Make more efficient
 fn fix_order(orderings: &BTreeMap<u32, BTreeSet<u32>>, update: Vec<u32>) -> Vec<u32> {
-    let length = update.len();
+    // let length = update.len();
+    // update
+    //     .into_iter()
+    //     .permutations(length)
+    //     .find(|update| is_valid(orderings, update))
+    //     .unwrap()
+
+    let update_set = update.clone().into_iter().collect::<BTreeSet<_>>();
     update
         .into_iter()
-        .permutations(length)
-        .find(|update| is_valid(orderings, update))
-        .unwrap()
+        .map(|page| {
+            (
+                orderings
+                    .get(&page)
+                    .map(|pages| pages.intersection(&update_set).count())
+                    .unwrap_or(0),
+                page,
+            )
+        })
+        .sorted()
+        .rev()
+        .map(|(_, page)| page)
+        .collect::<Vec<_>>()
 }
 
 fn process(input: &str) -> String {

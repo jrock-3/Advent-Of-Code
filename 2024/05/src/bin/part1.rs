@@ -1,12 +1,11 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use itertools::all;
 use nom::{
     bytes::complete::tag,
     character::complete::{self, line_ending},
     multi::{count, separated_list1},
     sequence::separated_pair,
-    IResult, Parser,
+    IResult,
 };
 
 fn main() {
