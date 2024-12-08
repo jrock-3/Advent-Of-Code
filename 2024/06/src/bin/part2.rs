@@ -1,5 +1,7 @@
 use std::collections::BTreeSet;
 
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+
 fn main() {
     let input = include_str!("../input.txt");
     dbg!(process(input));
@@ -26,6 +28,13 @@ impl Dir {
 
 type Pos = (usize, usize);
 
+#[derive(PartialEq)]
+enum Step {
+    Dir,
+    Pos,
+}
+
+#[derive(Clone)]
 struct Map {
     map: Vec<Vec<char>>,
     pos: Pos,
@@ -56,38 +65,51 @@ impl Map {
         (0..self.map.len()).contains(&pos.0) && (0..self.map[0].len()).contains(&pos.1)
     }
 
-    fn step(&mut self) -> Option<()> {
+    fn step(&mut self) -> Option<Step> {
+        // dbg!(&self.pos);
+        let next = self.get_pos();
+        // dbg!(&next);
+        if next.is_none() {
+            return None;
+        }
+        let next = next.unwrap();
+        if !self.pos_in_bounds(&next) {
+            return None;
+        }
+        if self.obstacles.contains(&next) {
+            self.dir = self.dir.rotate();
+            return Some(Step::Dir);
+        }
+        self.pos = next;
+        return Some(Step::Pos);
+    }
+
+    fn step_turn(&mut self) -> Option<()> {
         loop {
-            // dbg!(&self.pos);
-            let next = self.get_pos();
-            // dbg!(&next);
-            if next.is_none() {
-                return None;
-            }
-            let next = next.unwrap();
-            if !self.pos_in_bounds(&next) {
-                return None;
-            }
-            if self.obstacles.contains(&next) {
-                self.dir = self.dir.rotate();
+            if self.step()? == Step::Dir {
                 return Some(());
             }
-            self.pos = next;
         }
     }
 
-    fn did_loop(&mut self, turn_pts: &BTreeSet<(Pos, Dir)>) -> bool {
-        for _ in 0..turn_pts.len() * 2 {
-            if self.step().is_none() {
+    fn did_loop(mut self) -> bool {
+        let mut fast = self.clone();
+        loop {
+            let slow_step = self.step_turn();
+            let fast_step = fast.step_turn();
+            if fast_step.is_none() {
                 return false;
             }
-        }
-        while self.step().is_some() {
-            if turn_pts.contains(&(self.pos, self.dir)) {
+            let fast_step = fast.step_turn();
+
+            if slow_step.is_none() || fast_step.is_none() {
+                return false;
+            }
+
+            if (self.pos, self.dir) == (fast.pos, fast.dir) {
                 return true;
             }
         }
-        false
     }
 }
 
@@ -118,23 +140,31 @@ fn process(input: &str) -> String {
         .collect::<Vec<_>>()[0];
     // dbg!(&pos);
 
-    let mut turn_pts = BTreeSet::new();
+    let mut visited = BTreeSet::new();
+    visited.insert(pos);
     let mut patrols = Map::new(map.clone(), pos.clone(), obstructions.clone());
-    // TODO: Decrease number of instances by only using visited nodes
-    // let mut visited = BTreeSet::new();
-    while patrols.step().is_some() {
-        turn_pts.insert((patrols.pos, patrols.dir));
+    loop {
+        match patrols.step() {
+            Some(Step::Dir) => (),
+            Some(Step::Pos) => {
+                visited.insert(patrols.pos);
+            }
+            None => break,
+        }
     }
     // dbg!(&turn_pts);
 
-    (0..map.len())
-        .flat_map(|i| (0..map[i].len()).map(move |j| (i, j)))
-        .filter(|(i, j)| !(obstructions.contains(&(*i, *j)) || pos == (*i, *j)))
-        .filter(|(i, j)| {
+    visited
+        .par_iter()
+        // .inspect(|x| {
+        //     dbg!(x);
+        // })
+        .map(|(i, j)| {
             let mut obstacles = obstructions.clone();
             obstacles.insert((*i, *j));
-            Map::new(map.clone(), pos.clone(), obstacles).did_loop(&turn_pts)
+            Map::new(map.clone(), pos.clone(), obstacles).did_loop()
         })
+        .filter(|x| *x)
         // .inspect(|x| {
         //     dbg!(x);
         // })
