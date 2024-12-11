@@ -1,5 +1,3 @@
-use std::collections::BinaryHeap;
-
 use nom::{
     character::complete::{self, line_ending, multispace0},
     multi::separated_list1,
@@ -8,7 +6,7 @@ use nom::{
 };
 
 fn main() {
-    let input = include_str!("../in/in.txt");
+    let input = include_str!("../input.txt");
     dbg!(process(input));
 }
 
@@ -20,25 +18,24 @@ fn parse_lines(input: &str) -> IResult<&str, Vec<(i32, i32)>> {
 }
 
 fn process(input: &str) -> String {
-    // sort both lists
-    let mut total = 0;
-    let mut llist = BinaryHeap::new();
-    let mut rlist = BinaryHeap::new();
-
     let (_, pairs) = parse_lines(input).unwrap();
-    for (left, right) in pairs {
-        llist.push(left);
-        rlist.push(right);
-    }
 
-    loop {
-        if llist.is_empty() {
-            break;
-        }
-        total += (llist.pop().unwrap() - rlist.pop().unwrap()).abs();
-    }
+    let (mut llist, mut rlist) = pairs.iter().fold(
+        (Vec::new(), Vec::new()),
+        |(mut llist, mut rlist), (l, r)| {
+            llist.push(l);
+            rlist.push(r);
+            (llist, rlist)
+        },
+    );
 
-    total.to_string()
+    llist.sort();
+    rlist.sort();
+
+    std::iter::zip(llist, rlist)
+        .map(|(&l, &r)| l.abs_diff(r))
+        .sum::<u32>()
+        .to_string()
 }
 
 #[cfg(test)]
@@ -47,7 +44,12 @@ mod tests {
 
     #[test]
     fn test_in1() {
-        let input = include_str!("../in/sample1.txt");
+        let input = "3   4
+4   3
+2   5
+1   3
+3   9
+3   3";
         assert_eq!("11", process(input));
     }
 }

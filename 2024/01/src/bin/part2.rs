@@ -1,5 +1,3 @@
-use std::collections::BinaryHeap;
-
 use itertools::Itertools;
 use nom::{
     character::complete::{self, line_ending, multispace0},
@@ -9,7 +7,7 @@ use nom::{
 };
 
 fn main() {
-    let input = include_str!("../in/in.txt");
+    let input = include_str!("../input.txt");
     dbg!(process(input));
 }
 
@@ -21,28 +19,24 @@ fn parse_lines(input: &str) -> IResult<&str, Vec<(u32, u32)>> {
 }
 
 fn process(input: &str) -> String {
-    // sort both lists
-    let mut total = 0;
-    let mut llist = Vec::new();
-    let mut rlist = Vec::new();
-
     let (_, pairs) = parse_lines(input).unwrap();
-    for (left, right) in pairs {
-        llist.push(left);
-        rlist.push(right);
-    }
+    let (mut llist, rlist) = pairs.iter().fold(
+        (Vec::new(), Vec::new()),
+        |(mut llist, mut rlist), (l, r)| {
+            llist.push(l);
+            rlist.push(r);
+            (llist, rlist)
+        },
+    );
 
     llist.sort();
-    let lfreqs = llist.iter().counts();
-    rlist.sort();
     let rfreqs = rlist.into_iter().counts();
 
-    dbg!(&lfreqs, &rfreqs);
-    for num in llist {
-        total += (num as usize) * *rfreqs.get(&num).unwrap_or(&0);
-    }
-
-    total.to_string()
+    llist
+        .into_iter()
+        .map(|&l| (l as usize) * *rfreqs.get(&l).unwrap_or(&0))
+        .sum::<usize>()
+        .to_string()
 }
 
 #[cfg(test)]
@@ -51,7 +45,12 @@ mod tests {
 
     #[test]
     fn test_in1() {
-        let input = include_str!("../in/sample1.txt");
+        let input = "3   4
+4   3
+2   5
+1   3
+3   9
+3   3";
         assert_eq!("31", process(input));
     }
 }
