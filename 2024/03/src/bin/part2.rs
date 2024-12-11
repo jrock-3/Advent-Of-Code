@@ -6,25 +6,24 @@ fn main() {
 }
 
 fn process(input: &str) -> String {
-    let mut res = 0;
     let re = Regex::new(r"do(n't)?\(\)|mul\(\d+,\d+\)").unwrap();
-    let mut enabled = true;
-    for capture in re.find_iter(input) {
-        match capture.as_str() {
-            "do()" => enabled = true,
-            "don't()" => enabled = false,
-            mul => {
-                if !enabled {
-                    continue;
+
+    re.find_iter(input)
+        .fold((true, 0), |(enabled, acc), capture| {
+            match (enabled, capture.as_str()) {
+                (_, "do()") => (true, acc),
+                (_, "don't()") => (false, acc),
+                (true, mul) => {
+                    let (a, b) = mul[4..mul.len() - 1].split_once(",").unwrap();
+                    let a = a.parse::<u32>().unwrap();
+                    let b = b.parse::<u32>().unwrap();
+                    (true, acc + a * b)
                 }
-                let (a, b) = mul[4..mul.len() - 1].split_once(",").unwrap();
-                let a = a.parse::<u32>().unwrap();
-                let b = b.parse::<u32>().unwrap();
-                res += a * b;
+                _ => (enabled, acc),
             }
-        }
-    }
-    res.to_string()
+        })
+        .1
+        .to_string()
 }
 
 #[cfg(test)]

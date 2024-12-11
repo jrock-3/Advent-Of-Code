@@ -6,14 +6,12 @@ fn main() {
 }
 
 fn process(input: &str) -> String {
-    let mut res = 0;
     let re = Regex::new(r"mul\((\d+),(\d+)\)").unwrap();
-    for (_, [a, b]) in re.captures_iter(input).map(|c| c.extract()) {
-        let a = a.parse::<u32>().unwrap();
-        let b = b.parse::<u32>().unwrap();
-        res += a * b;
-    }
-    res.to_string()
+    re.captures_iter(input)
+        .map(|c| c.extract())
+        .map(|(_, [a, b])| a.parse::<u32>().unwrap() * b.parse::<u32>().unwrap())
+        .sum::<u32>()
+        .to_string()
 }
 
 #[cfg(test)]
