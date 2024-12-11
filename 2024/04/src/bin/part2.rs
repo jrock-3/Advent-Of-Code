@@ -1,6 +1,3 @@
-use std::ops::Sub;
-
-use diagonal::{diagonal_pos_neg, diagonal_pos_pos, straight_x, straight_y};
 use itertools::Itertools;
 
 fn main() {
@@ -23,20 +20,6 @@ fn is_xmas(arr: &Vec<Vec<char>>, i: usize, j: usize) -> Option<()> {
     }
 }
 
-fn cnt_xmas(arr: &Vec<Vec<char>>) -> usize {
-    let mut cnt = 0;
-
-    for i in 0..arr.len() {
-        for j in 0..arr[i].len() {
-            if arr[i][j] == 'A' && is_xmas(arr, i, j).is_some() {
-                cnt += 1;
-            }
-        }
-    }
-
-    cnt
-}
-
 fn process(input: &str) -> String {
     let word_search = input
         .lines()
@@ -44,7 +27,11 @@ fn process(input: &str) -> String {
         .collect::<Vec<_>>();
     // dbg!(&word_search);
 
-    cnt_xmas(&word_search).to_string()
+    (0..word_search.len())
+        .cartesian_product(0..word_search[0].len())
+        .filter(|&(i, j)| word_search[i][j] == 'A' && is_xmas(&word_search, i, j).is_some())
+        .count()
+        .to_string()
 }
 
 #[cfg(test)]
