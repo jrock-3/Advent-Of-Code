@@ -1,7 +1,7 @@
 use itertools::Itertools;
 
 fn main() {
-    let input = include_str!("../in/in.txt");
+    let input = include_str!("../input.txt");
     dbg!(process(input));
 }
 
@@ -9,7 +9,7 @@ fn process(input: &str) -> String {
     input
         .trim()
         .split("\n")
-        .filter_map(|line| {
+        .filter(|line| {
             let mut line = line
                 .trim()
                 .split(" ")
@@ -19,19 +19,11 @@ fn process(input: &str) -> String {
 
             let is_inc = line.peek().and_then(|(a, b)| Some(a < b)).unwrap();
 
-            for (a, b) in line {
-                let diff = (a - b).abs();
-
-                let inc_to_dec = is_inc && a > b;
-                let dec_to_inc = !is_inc && a < b;
-                let out_of_bounds = diff > 3 || diff < 1;
-                if inc_to_dec || dec_to_inc || out_of_bounds {
-                    return None;
-                }
-            }
-            Some(1)
+            line.all(|(a, b)| {
+                (1..=3).contains(&(a - b).abs()) && (if is_inc { a < b } else { a > b })
+            })
         })
-        .sum::<u32>()
+        .count()
         .to_string()
 }
 

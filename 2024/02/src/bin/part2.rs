@@ -1,29 +1,16 @@
 use itertools::Itertools;
 
 fn main() {
-    let input = include_str!("../in/in.txt");
+    let input = include_str!("../input.txt");
     dbg!(process(input));
-}
-
-fn is_valid(is_inc: bool, a: i32, b: i32) -> bool {
-    let diff = (a - b).abs();
-
-    let inc_to_dec = is_inc && a > b;
-    let dec_to_inc = !is_inc && a < b;
-    let out_of_bounds = diff > 3 || diff < 1;
-    return !(inc_to_dec || dec_to_inc || out_of_bounds);
 }
 
 fn is_line_valid(line: &Vec<i32>) -> bool {
     let is_inc = line[0] < line[1];
 
-    for (&a, &b) in line.into_iter().tuple_windows() {
-        if !is_valid(is_inc, a, b) {
-            return false;
-        }
-    }
-
-    true
+    line.into_iter()
+        .tuple_windows()
+        .all(|(&a, &b)| (1..=3).contains(&(a - b).abs()) && (if is_inc { a < b } else { a > b }))
 }
 
 fn process(input: &str) -> String {
@@ -34,28 +21,17 @@ fn process(input: &str) -> String {
             .collect::<Vec<_>>()
     });
 
-    let mut cnt = 0;
-    for mut line in lines {
-        // dbg!(&line);
-        if is_line_valid(&line) {
-            // dbg!(&line);
-            cnt += 1;
-            continue;
-        }
-
-        // try removing a level
-        for i in 0..line.len() {
-            // dbg!(&line);
-            let lvl = line.remove(i);
-            if is_line_valid(&line) {
-                cnt += 1;
-                break;
-            }
-            line.insert(i, lvl);
-        }
-    }
-
-    cnt.to_string()
+    lines
+        .filter(|line| {
+            is_line_valid(&line)
+                || (0..line.len()).any(|i| {
+                    let mut line = line.clone();
+                    line.remove(i);
+                    is_line_valid(&line)
+                })
+        })
+        .count()
+        .to_string()
 }
 
 #[cfg(test)]
