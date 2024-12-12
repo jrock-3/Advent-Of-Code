@@ -1,5 +1,6 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
+use itertools::Itertools;
 use nom::{
     bytes::complete::tag,
     character::complete::{self, line_ending},
@@ -13,25 +14,16 @@ fn main() {
     dbg!(process(input));
 }
 
-fn parse_orderings(input: &str) -> IResult<&str, BTreeMap<u32, BTreeSet<u32>>> {
+fn parse_orderings(input: &str) -> IResult<&str, HashMap<u32, BTreeSet<u32>>> {
     let (input, rules) = separated_list1(
         line_ending,
         separated_pair(complete::u32, tag("|"), complete::u32),
     )(input)?;
 
-    let mut orderings: BTreeMap<u32, BTreeSet<u32>> = BTreeMap::new();
-    for (a, b) in rules {
-        orderings
-            .entry(a)
-            .and_modify(|set| {
-                set.insert(b);
-            })
-            .or_insert_with(|| {
-                let mut set = BTreeSet::new();
-                set.insert(b);
-                set
-            });
-    }
+    let orderings = rules
+        .into_iter()
+        .into_grouping_map()
+        .collect::<BTreeSet<_>>();
 
     Ok((input, orderings))
 }
@@ -40,39 +32,27 @@ fn parse_updates(input: &str) -> IResult<&str, Vec<Vec<u32>>> {
     separated_list1(line_ending, separated_list1(tag(","), complete::u32))(input)
 }
 
-fn parse_manuals(input: &str) -> IResult<&str, (BTreeMap<u32, BTreeSet<u32>>, Vec<Vec<u32>>)> {
+fn parse_manuals(input: &str) -> IResult<&str, (HashMap<u32, BTreeSet<u32>>, Vec<Vec<u32>>)> {
     let (input, orderings) = parse_orderings(input)?;
     let (input, _) = count(line_ending, 2)(input)?;
     let (input, updates) = parse_updates(input)?;
-    Ok((input, (orderings, updates)))
-}
 
-fn is_valid(orderings: &BTreeMap<u32, BTreeSet<u32>>, update: &Vec<u32>) -> bool {
-    // dbg!(orderings, update);
-    for i in 0..update.len() {
-        if !update[i + 1..]
-            .into_iter()
-            .all(|num| orderings.contains_key(&update[i]) && orderings[&update[i]].contains(num))
-        {
-            return false;
-        }
-    }
-    true
+    Ok((input, (orderings, updates)))
 }
 
 fn process(input: &str) -> String {
     let (_, (orderings, updates)) = parse_manuals(input).unwrap();
-    // dbg!(&orderings, &updates);
+
     updates
         .iter()
-        .filter(|update| is_valid(&orderings, update))
-        // .inspect(|update| {
-        //     dbg!(update);
-        // })
+        .filter(|update| {
+            (0..update.len()).all(|i| {
+                update[i + 1..].into_iter().all(|num| {
+                    orderings.contains_key(&update[i]) && orderings[&update[i]].contains(num)
+                })
+            })
+        })
         .map(|update| update[update.len() / 2])
-        // .inspect(|update| {
-        //     dbg!(update);
-        // })
         .sum::<u32>()
         .to_string()
 }
