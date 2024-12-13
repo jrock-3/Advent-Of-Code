@@ -1,6 +1,5 @@
-use std::collections::{BTreeSet, VecDeque};
+use std::collections::VecDeque;
 
-use itertools::Itertools;
 use nom::{
     bytes::complete::tag,
     character::complete::{self, line_ending, space1},
@@ -27,19 +26,15 @@ fn parse_equations(input: &str) -> IResult<&str, Vec<(u128, Vec<u128>)>> {
 
 fn process(input: &str) -> String {
     let (_input, equations) = parse_equations(input).unwrap();
-    // dbg!(&equations);
 
     equations
         .into_iter()
         .filter_map(|(goal, nums)| {
-            // dbg!(&goal, &nums);
             let mut queue = VecDeque::new();
             queue.push_back((nums[0], 1));
 
             while !queue.is_empty() {
                 let (curr, idx) = queue.pop_back().unwrap();
-                // dbg!(&curr, idx);
-
                 if curr > goal {
                     continue;
                 }
@@ -61,9 +56,6 @@ fn process(input: &str) -> String {
 
             None
         })
-        // .inspect(|x| {
-        //     dbg!(x);
-        // })
         .sum::<u128>()
         .to_string()
 }

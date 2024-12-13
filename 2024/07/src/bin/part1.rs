@@ -28,8 +28,6 @@ fn parse_equations(input: &str) -> IResult<&str, Vec<(u128, Vec<u128>)>> {
 fn process(input: &str) -> String {
     let (_input, equations) = parse_equations(input).unwrap();
 
-    dbg!(&equations);
-
     equations
         .iter()
         .filter_map(|(goal, nums)| {

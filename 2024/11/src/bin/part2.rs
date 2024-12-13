@@ -11,38 +11,41 @@ fn process(input: &str) -> String {
         .split(" ")
         .map(|num| num.parse::<usize>().unwrap())
         .counts();
-    // dbg!(&nums);
 
     for _ in 0..75 {
         for (num, cnt) in nums.clone() {
             *nums.get_mut(&num).unwrap() -= cnt;
-            if num == 0 {
-                nums.entry(1)
-                    .and_modify(|e| {
-                        *e += cnt;
-                    })
-                    .or_insert(cnt);
-            } else if num.ilog10() % 2 == 1 {
-                let digits = 10usize.pow((num.ilog10() + 1) / 2);
-                nums.entry(num / digits)
-                    .and_modify(|e| {
-                        *e += cnt;
-                    })
-                    .or_insert(cnt);
-                nums.entry(num % digits)
-                    .and_modify(|e| {
-                        *e += cnt;
-                    })
-                    .or_insert(cnt);
-            } else {
-                nums.entry(num * 2024)
-                    .and_modify(|e| {
-                        *e += cnt;
-                    })
-                    .or_insert(cnt);
+
+            match num {
+                0 => {
+                    nums.entry(1)
+                        .and_modify(|e| {
+                            *e += cnt;
+                        })
+                        .or_insert(cnt);
+                }
+                num if num.ilog10() % 2 == 1 => {
+                    let digits = 10usize.pow((num.ilog10() + 1) / 2);
+                    nums.entry(num / digits)
+                        .and_modify(|e| {
+                            *e += cnt;
+                        })
+                        .or_insert(cnt);
+                    nums.entry(num % digits)
+                        .and_modify(|e| {
+                            *e += cnt;
+                        })
+                        .or_insert(cnt);
+                }
+                _ => {
+                    nums.entry(num * 2024)
+                        .and_modify(|e| {
+                            *e += cnt;
+                        })
+                        .or_insert(cnt);
+                }
             }
         }
-        // dbg!(&nums);
     }
 
     nums.values().sum::<usize>().to_string()

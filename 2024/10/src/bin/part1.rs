@@ -16,7 +16,6 @@ fn process(input: &str) -> String {
                 .collect::<Vec<_>>()
         })
         .collect::<Vec<_>>();
-    // dbg!(&heights);
 
     (0..heights.len())
         .flat_map(|i| (0..heights[i].len()).map(move |j| (i as isize, j as isize)))
@@ -31,8 +30,6 @@ fn process(input: &str) -> String {
 
             while !queue.is_empty() {
                 let (i, j) = queue.pop_back().unwrap();
-                // dbg!((&i, &j));
-
                 if seen.contains(&(i, j)) {
                     continue;
                 }

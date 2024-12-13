@@ -1,5 +1,7 @@
 use std::collections::BTreeSet;
 
+use itertools::Itertools;
+
 fn main() {
     let input = include_str!("../input.txt");
     dbg!(process(input));
@@ -14,6 +16,14 @@ enum Dirs {
 }
 
 impl Dirs {
+    fn rotate(self) -> Self {
+        match self {
+            Dirs::Up => Dirs::Right,
+            Dirs::Down => Dirs::Left,
+            Dirs::Left => Dirs::Up,
+            Dirs::Right => Dirs::Down,
+        }
+    }
     fn get_pos(self, pos: (usize, usize)) -> Option<(usize, usize)> {
         Some(match self {
             Dirs::Up => (pos.0.checked_sub(1)?, pos.1),
@@ -33,22 +43,16 @@ fn process(input: &str) -> String {
         .lines()
         .map(|line| line.chars().collect::<Vec<_>>())
         .collect::<Vec<_>>();
-    // dbg!(&map);
 
     let obstructions = (0..map.len())
-        .flat_map(|i| {
-            (0..map[i].len())
-                .map(move |j| (i, j))
-                .filter(|(i, j)| map[*i][*j] == '#')
-        })
+        .cartesian_product(0..map[0].len())
+        .filter(|&(i, j)| map[i][j] == '#')
         .collect::<Vec<_>>();
-    // dbg!(&obstructions);
 
     let mut pos = (0..map.len())
-        .flat_map(|i| (0..map[i].len()).map(move |j| (i, j)))
-        .filter(|(i, j)| map[*i][*j] == '^')
+        .cartesian_product(0..map[0].len())
+        .filter(|&(i, j)| map[i][j] == '^')
         .collect::<Vec<_>>()[0];
-    // dbg!(&pos);
 
     let mut dir = Dirs::Up;
     let mut visited = BTreeSet::new();
@@ -57,20 +61,17 @@ fn process(input: &str) -> String {
         if next.is_none() {
             break;
         }
+
         let next = next.unwrap();
         if !pos_in_bounds(&map, &next) {
             break;
         }
+
         if !obstructions.contains(&next) {
             visited.insert(next);
             pos = next;
         } else {
-            dir = match dir {
-                Dirs::Up => Dirs::Right,
-                Dirs::Down => Dirs::Left,
-                Dirs::Left => Dirs::Up,
-                Dirs::Right => Dirs::Down,
-            }
+            dir = dir.rotate();
         }
     }
 

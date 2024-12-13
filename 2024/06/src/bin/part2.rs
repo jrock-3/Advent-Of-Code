@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 
+use itertools::Itertools;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 fn main() {
@@ -66,20 +67,21 @@ impl Map {
     }
 
     fn step(&mut self) -> Option<Step> {
-        // dbg!(&self.pos);
         let next = self.get_pos();
-        // dbg!(&next);
         if next.is_none() {
             return None;
         }
+
         let next = next.unwrap();
         if !self.pos_in_bounds(&next) {
             return None;
         }
+
         if self.obstacles.contains(&next) {
             self.dir = self.dir.rotate();
             return Some(Step::Dir);
         }
+
         self.pos = next;
         return Some(Step::Pos);
     }
@@ -113,35 +115,25 @@ impl Map {
     }
 }
 
-// NOTE: Idea
-// Use turn points as points on a graph (point, direction)
-// if an obstacle ever matches one of those points, it is a loop
-// try placing an obstacle in every part of the grid (minus start + preexisting obstacles)
-// if a guard leaves the area, there is no loop
 fn process(input: &str) -> String {
     let map = input
         .lines()
         .map(|line| line.chars().collect::<Vec<_>>())
         .collect::<Vec<_>>();
-    // dbg!(&map);
 
     let obstructions = (0..map.len())
-        .flat_map(|i| {
-            (0..map[i].len())
-                .map(move |j| (i, j))
-                .filter(|(i, j)| map[*i][*j] == '#')
-        })
+        .cartesian_product(0..map[0].len())
+        .filter(|&(i, j)| map[i][j] == '#')
         .collect::<BTreeSet<_>>();
-    // dbg!(&obstructions);
 
     let pos = (0..map.len())
-        .flat_map(|i| (0..map[i].len()).map(move |j| (i, j)))
-        .filter(|(i, j)| map[*i][*j] == '^')
+        .cartesian_product(0..map[0].len())
+        .filter(|&(i, j)| map[i][j] == '^')
         .collect::<Vec<_>>()[0];
-    // dbg!(&pos);
 
     let mut visited = BTreeSet::new();
     visited.insert(pos);
+
     let mut patrols = Map::new(map.clone(), pos.clone(), obstructions.clone());
     loop {
         match patrols.step() {
@@ -152,22 +144,14 @@ fn process(input: &str) -> String {
             None => break,
         }
     }
-    // dbg!(&turn_pts);
 
     visited
         .par_iter()
-        // .inspect(|x| {
-        //     dbg!(x);
-        // })
-        .map(|(i, j)| {
+        .filter(|(i, j)| {
             let mut obstacles = obstructions.clone();
             obstacles.insert((*i, *j));
             Map::new(map.clone(), pos.clone(), obstacles).did_loop()
         })
-        .filter(|x| *x)
-        // .inspect(|x| {
-        //     dbg!(x);
-        // })
         .count()
         .to_string()
 }

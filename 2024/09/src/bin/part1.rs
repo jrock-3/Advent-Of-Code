@@ -19,11 +19,9 @@ fn process(input: &str) -> String {
             disk.extend((0..num).map(|_| ".".to_string()));
         }
     }
-    // dbg!(&disk);
 
     let mut idx = 0;
     while idx < disk.len() {
-        // dbg!(&idx, &disk[idx]);
         if disk[idx].as_str() != "." {
             idx += 1;
             continue;
@@ -37,7 +35,6 @@ fn process(input: &str) -> String {
         disk[idx] = block;
         idx += 1;
     }
-    // dbg!(&disk);
 
     let checksum = disk
         .into_iter()
@@ -59,34 +56,3 @@ mod tests {
         assert_eq!("1928", process(input));
     }
 }
-
-/*
-0 1 2 3 4 5 6 7 8 9
-2333133121414131402
-
-        0123456789
-files:  2313244342
-spaces: 333111110
-
-        0123456789
-files:  2313244340
-spaces: 133111110
-
-let idx = files.len() - 1
-let block = 0
-while idx > 0 and !spaces.is_empty
-    cnt = min(spaces[0],files[-1])
-    spaces[0] -= cnt
-    res += idx * ( (block+
-    // 4 * 5 + 4 * 6 + 4 * 7 = 4 * (5 + 6 + 7) = 4 *
-    files[spaces.len()-1] -= cnt
-    if files[spaces.len()-1] == 0:
-        files.pop_back()
-        idx -= 1
-    if spaces[0] == 0: spaces.pop_back()
-res += idx * files[0] * (files[0] + 1) / 2
-
-n -> n + k
-( (n+k)(n+k+1) - (n)(n+1) ) / 2
-
-*/

@@ -42,7 +42,6 @@ fn get_nodes(
 fn process(input: &str) -> String {
     let xlen = input.lines().count();
     let ylen = input.lines().next().unwrap().len();
-    // dbg!(&xlen, &ylen);
 
     let mut antennas = BTreeMap::new();
     input.lines().enumerate().for_each(|(i, line)| {
@@ -62,11 +61,9 @@ fn process(input: &str) -> String {
                     });
             });
     });
-    dbg!(&antennas);
 
     let mut antinodes = BTreeSet::new();
     antennas.values().for_each(|locs| {
-        dbg!(&locs);
         locs.iter()
             .tuple_combinations()
             .for_each(|(&(x1, y1), &(x2, y2))| {
@@ -81,7 +78,6 @@ fn process(input: &str) -> String {
                 }
             })
     });
-    // dbg!(&antinodes);
 
     antinodes.len().to_string()
 }

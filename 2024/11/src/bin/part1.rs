@@ -11,7 +11,6 @@ fn process(input: &str) -> String {
         .collect::<Vec<_>>();
 
     for _ in 0..25 {
-        // dbg!(&nums);
         nums = nums
             .into_iter()
             .flat_map(|num| {
